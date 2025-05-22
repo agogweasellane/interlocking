@@ -9,8 +9,7 @@ JAVA
 
 
 C#
-- ASP .netCore
-- .net 9.0
+- ASP .netCore (.net 9.0)
 - restFull API
 - SQL: 마리아DB
 - NoSQL: 레디스, 몽고DB
