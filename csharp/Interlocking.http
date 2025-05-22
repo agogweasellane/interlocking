@@ -1,0 +1,6 @@
+@Interlocking_HostAddress = http://localhost:5210
+
+GET {{Interlocking_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -3,33 +3,28 @@ using Interlocking.Controllers;
 using Interlocking.Framwork.Setting;
 using Interlocking.Global;
 using Interlocking.Global.Exception;
-using Interlocking.Global.WrongException;
-using Interlocking.Models.Daos;
 using Interlocking.Models.ServiceLayer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Filters;
-using System;
-using System.Reflection;
+
+using Amazon.S3;
 
 
 /// <summary>
 /// .net9로 프로젝트 생성하니깐,
-/// ASP .netCore 2.1버전과는 다르게 StartUp.cs가 없으니 이게 더 나은거 같기도한데
+/// ASP .netCore 2.1/3.x 버전과는 다르게 StartUp.cs가 없으니 이게 더 나은거 같기도한데
 /// 육안으로만 보면 typescript의 App파일?
 /// </summary>
-
-const string VERSION = "V. 0.8.2505";
 var builder = WebApplication.CreateBuilder(args);
 EnvironmentEnum envEnum = EnvironmentEnum.Win;
 string appendTag = "";
+const string API_VERSION = "V. 0.8.2505";
 
-string urls = urls = Environment.GetEnvironmentVariable("ASPNETCORE_WIN_URL");
+string? urls = urls = Environment.GetEnvironmentVariable("ASPNETCORE_WIN_URL");
 if (!string.IsNullOrEmpty(urls))
 {//윈도우 로컬 개발 환경
 }
@@ -95,7 +90,7 @@ builder.Services.AddScoped<MongoMultiDocumentService>(sp =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {// http://localhost:5001/swagger/index.html
-    c.SwaggerDoc(VERSION, new OpenApiInfo { Title = "내부문서", Version = VERSION });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "내부문서", Version = API_VERSION });//좌측 상단에 표기되는 라벨.
     c.EnableAnnotations();//API별 설명 출력
     c.ExampleFilters();    // Example 필터
 
@@ -110,6 +105,20 @@ builder.Services.AddSwaggerExamplesFromAssemblyOf<GlobalExceptionResponseExample
 builder.Services.AddSwaggerExamplesFromAssemblyOf<EchoResponseExample>();
 //END. 스웨거
 
+
+//START. 클라우드-AWS
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+//END. 클라우드-AWS
 
 
 builder.Services.AddControllers(options =>
@@ -126,7 +135,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", VERSION);
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", API_VERSION);
         options.RoutePrefix = string.Empty;//루트 경로에서 깔끔하게
         options.ConfigObject.DisplayRequestDuration = true; // 예시 활성화
     });
