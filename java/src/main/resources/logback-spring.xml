@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+
+	<property name="LOGGING_LEVEL_ROOT" value="${logging.level.root}"/>
+	<property name="LOGGING_LEVEL_INFO" value="${custom.logging.info}"/>
+	
+	<property name="LOG_DIR" value="logs" />
+	<property name="LOG_PATH_NAME" value="${LOG_DIR}/stdout" />
+	<property name="LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%-5level][ps:${PID:-}]---[%-40.40logger{36}] %msg%n"/>
+
+
+	<!-- appenders -->
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <Pattern>${LOG_PATTERN}</Pattern>
+        </encoder>
+    </appender>
+ 	<appender name="LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH_NAME}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+		 	<fileNamePattern>${LOG_PATH_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+		 	<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>${LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+
+	<!-- loggers -->
+    <root level="${ROOT_LOG_LEVEL}">
+        <appender-ref ref="consoleAppender" />
+        <appender-ref ref="LOG_FILE" />
+    </root>
+</configuration>

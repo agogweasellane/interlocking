@@ -1,0 +1,27 @@
+{"properties": [
+  {
+    "name": "custom.webclient.ExchangeStrategies.maxInMemorySize",
+    "type": "java.lang.String",
+    "description": "A description for 'custom.webclient.ExchangeStrategies.maxInMemorySize'"
+  },
+  {
+    "name": "custom.webclient.defaultHeader.key",
+    "type": "java.lang.String",
+    "description": "A description for 'custom.webclient.defaultHeader.key'"
+  },
+  {
+    "name": "custom.webclient.defaultHeader.value",
+    "type": "java.lang.String",
+    "description": "A description for 'custom.webclient.defaultHeader.value'"
+  },
+  {
+    "name": "custom.logging.info",
+    "type": "java.lang.String",
+    "description": "A description for 'custom.logging.info'"
+  },
+  {
+    "name": "custom.logging.charset",
+    "type": "java.lang.String",
+    "description": "A description for 'custom.logging.charset'"
+  }
+]}
