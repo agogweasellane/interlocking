@@ -1,10 +1,19 @@
 # 1. JAVA
+### 0) Ver. 0.9.2505
 ### 1) 프레임워크
 - springBoot 3.4.5
 - JDK 17
 - MAVEN
 ### 2) restFull API
 - 추상클래스를 통한 API method 규칙 적용
+- apis/ehco: 연동된 솔루션er. 0.9.2505
+### 1) 프레임워크
+- springBoot 3.4.5
+- JDK 17
+- MAVEN
+### 2) restFull API
+- 추상클래스를 통한 API method 규칙 적용
+- apis/ehco: 연동된 시스템의 정상적인 작동을 체크. 로드밸런서의 healthCheck와 관리툴 메뉴등에서 활용가능.
 ### 3) SQL
 - 마리아DB: mariadb.jdbc
 ### 4) NoSQL
@@ -18,10 +27,12 @@
 
 
 # 2. C#
+### 0) Ver. 0.7
 ### 1) 프레임워크
 - ASP .netCore (.net 9.0)
 ### 2) restFull API
 - 추상클래스를 통한 API method 규칙 적용
+- apis/ehco: (마무리 작업중.)
 ### 3) SQL
 - 마리아DB: MongoDB.Driver 3.4.0
 ### 4) NoSQL
