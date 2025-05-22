@@ -9,9 +9,6 @@ namespace Interlocking.Base;
 /// </summary>
 public class BaseRequestPacket
 {
-    public DateOnly Date { get; protected set; }
-    public string Hash { get; set; }
-
     public string ToJsonString()
     {
         return JsonConvert.SerializeObject(this);
@@ -34,7 +31,7 @@ public class BaseResponsePacket
     public string Code { get; set; }
     public string Message { get; set; }
 
-    public void SetResultCode(HttpStatusCode status)
+    public void SetStatus(HttpStatusCode status)
     {
         this.Status = status;// (HttpStatusCode)((int)ResultCode / 1000);
     }

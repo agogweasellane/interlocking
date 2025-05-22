@@ -10,6 +10,25 @@ public static class DataToolExtensions
         services.AddSingleton<DataTool>();
         return services;
     }
+
+    /// <summary>
+    /// CS1106 Error 때문에 static
+    /// </summary>
+    /// <param name="file">C#의 IFormFile</param>
+    /// <returns>범용성을 위해 byte[]</returns>
+    public static async Task<byte[]?> ToByteArrayAsync(this IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return null;
+        }
+
+        using (var memoryStream = new MemoryStream())
+        {
+            await file.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
+    }
 }
 
 public class DataTool

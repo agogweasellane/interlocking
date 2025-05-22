@@ -48,7 +48,7 @@ public class GlobalExceptionHandler : IExceptionFilter
                         context.HttpContext.Request.Path, tmpExcep.GetType().Name, context.Exception.Message);
 
         WrongExceptionResponse ret = new();
-        ret.SetResultCode(tmpExcep.StatusCode);
+        ret.SetStatus(tmpExcep.StatusCode);
         ret.Tag = tmpExcep.GetType().Name;
 #if DEBUG
         _logger.LogDebug("tmpExcep={0}", ret.ToJsonString());

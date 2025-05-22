@@ -4,8 +4,18 @@
 리퀘스트/리스폰스
 - 변수 Xxxx		프로퍼티 변수
 
+비동기 관련
+	JAVA의 Callable<V>과 Future<V>중 어느쪽이 Task<V>랑 가까운편일까 했는데비동기 작업결과 반환은 Future
 
-
+코드 고도화 및 구조잡기
+	(Base)Async()에서 (Base)abstrat AsyncControll()를 호출시키고, 자식에서 재정의하기에는 어트리뷰트 지정등에서 경로가 안 맞는 문제. 그런고로 (Base)abstrat Async()
+------------------------------------------------------------
+------------------------------------------------------------
+아키텍쳐 및 클린코드관련
+	(2025) https://codewithmukesh.com/blog/restful-api-best-practices-for-dotnet-developers/
+	(2025) https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
+------------------------------------------------------------
+------------------------------------------------------------
 연동
 ASP 닷넷	https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-9.0&tabs=visual-studio
 maraiDB		https://blog.georgekosmidis.net/using-mariadb-in-an-aspnet-core-api-with-entity-framework-core.html
@@ -13,27 +23,36 @@ maraiDB		https://blog.georgekosmidis.net/using-mariadb-in-an-aspnet-core-api-wit
 	https://learn.microsoft.com/ko-kr/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-9.0&preserve-view=true
 	https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&tabs=visual-studio
 	https://github.com/domaindrivendev/Swashbuckle.AspNetCore
-	https://medium.com/trimble-maps-engineering-blog/customizing-swagger-responses-for-better-api-documentation-affbfafeac8f	(2020)
-나머지
+	(2020) https://medium.com/trimble-maps-engineering-blog/customizing-swagger-responses-for-better-api-documentation-affbfafeac8f
+S3
+	https://docs.aws.amazon.com/ko_kr/sdk-for-net/v3/developer-guide/csharp_s3_code_examples.html
+	(2025) https://codewithmukesh.com/blog/upload-large-files-aspnet-core-s3-multipart-presigned-urls/
+
+	(실무당시 참조) https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region 
+    (실무당시 참조) http://www.codelocker.net/30385/dot-net-c-sharp-upload-a-file-to-amazon-aws-s3-with-dot-net-and-c-sharp/	(404)
+	(실무당시 참조) https://stackoverflow.com/questions/33545065/amazon-s3-how-to-get-a-list-of-folders-in-the-bucket
+코드규칙
 	https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-9.0&tabs=visual-studio
 	https://gemini.google.com/u/1/gem/coding-partner/
-------------------------------------------------------------
 기타 가이드북
 	https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/coding-style/coding-conventions
 	https://learn.microsoft.com/ko-kr/aspnet/core/security/?view=aspnetcore-9.0
+보안
+	디도스대책 System.Text.RegularExpressions
+------------------------------------------------------------
 ------------------------------------------------------------
 외부툴
 
 Robo3T
 db.tbl_echo.createIndex( { "ExpireAt.DateTime": 1 }, { expireAfterSeconds: 0 } );
 db.tbl_echo.createIndex( { "ExpireAt": 1 }, { expireAfterSeconds: 0 } );
-
-
+------------------------------------------------------------
+------------------------------------------------------------
 
 빌드시간
 [+] Building 34.8s (15/15) FINISHED		최초 빌드 성공
 [+] Building 10.7s (15/15) FINISHED		반복 빌드시.
-------------------------------------------------------------
+
 docker build -t interlocking_dev .
 docker run -d -p 5001:5001 --network nw-springboot --detach --name interlocking_dev interlocking_dev
 

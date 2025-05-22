@@ -16,7 +16,7 @@ public class GlobalExceptionResponseExample : IExamplesProvider<WrongExceptionRe
     WrongExceptionResponse IExamplesProvider<WrongExceptionResponse>.GetExamples()
     {
         WrongExceptionResponse ret = new();
-        ret.SetResultCode(HttpStatusCode.InternalServerError);
+        ret.SetStatus(HttpStatusCode.InternalServerError);
         ret.Message = "(StatusCode=익셉션 클래스) 400=WrongRequestExcpetion, 503=WrongServiceException, 500=WrongException";
 
         return ret;
