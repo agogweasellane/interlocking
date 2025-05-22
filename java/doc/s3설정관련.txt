@@ -1,0 +1,46 @@
+https://repost.aws/questions/QUyAM0KDS9T6eHzInT5vf6bg/the-bucket-does-not-allow-acls
+    퍼블릭 액세스 차단(버킷 설정) 활성화를 추천치 않는다는 공식답변.(2023?)
+
+
+프라이빗
+
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1747838125795",
+    "Statement": [
+        {
+            "Sid": "AllowInternalReadWriteDelete",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::1010101010101010:user/infraEnginer_test",
+                    "arn:aws:iam::1010101010101010:root",
+                    "arn:aws:iam::1010101010101010:user/webAPI"
+                ]
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::interlocking-private/*"
+        }
+    ]
+}
+
+/// ==========================================
+퍼블릭
+
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1747837827211",
+    "Statement": [
+        {
+            "Sid": "Stmt1747837808532",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::interlocking-public/*"
+        }
+    ]
+}
