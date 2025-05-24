@@ -28,6 +28,14 @@
             리스폰스 생성. 다양한 HTTP 상태 코드때문에 IActionResult
             </summary>
         </member>
+        <member name="M:Interlocking.Base.BaseController`3.MultiformAsync(`1,System.Collections.Generic.IList{Microsoft.AspNetCore.Http.IFormFile})">
+            <summary>
+            json과 첨부파일을 같이 넣는경우. 포스트맨의 입력형식 기준.
+            </summary>
+            <param name="req"> json스트링 형태 </param>
+            <param name="files">업로드할 파일[]</param>
+            <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
+        </member>
         <member name="M:Interlocking.Base.BaseController`3.GetAsync(System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             HttpGet 리퀘스트.
@@ -41,18 +49,17 @@
             <param name="req">The request payload.</param>
             <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
         </member>
-        <member name="M:Interlocking.Base.BaseController`3.PostAsyncWithFiles(`1,Microsoft.AspNetCore.Http.IFormFile[])">
+        <member name="M:Interlocking.Base.BaseController`3.PutAsync(`1)">
             <summary>
-            HttpPost 리퀘스트 with 멀티폼 데이터
+            HttpPut 리퀘스트. 리소스OW
             </summary>
             <param name="req">The request payload.</param>
             <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
         </member>
-        <member name="M:Interlocking.Base.BaseController`3.PutAsync(`1)">
+        <member name="M:Interlocking.Base.BaseController`3.PatchAsync(`1)">
             <summary>
-            HttpPut 리퀘스트.
+            HttpPatch 리퀘스트. 리소스 일부update
             </summary>
-            <param name="req">The request payload.</param>
             <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
         </member>
         <member name="M:Interlocking.Base.BaseController`3.DeleteAsync(`1)">
@@ -62,12 +69,6 @@
             <param name="req">The request payload.</param>
             <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
         </member>
-        <member name="M:Interlocking.Base.BaseController`3.PatchAsync">
-            <summary>
-            HttpPatch 리퀘스트.
-            </summary>
-            <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
-        </member>
         <!-- Badly formed XML comment ignored for member "T:Interlocking.Base.IMongoMultipleDocument" -->
         <member name="T:Interlocking.Base.BaseException">
             <summary>
@@ -75,6 +76,13 @@
             HttpStatusCode.InternalServerError(500)     서버사이트코드 에러 OR 트래픽폭발등 인프라쪽 지원 필요
             [수정.2025-05-18]
             </summary>
+        </member>
+        <member name="M:Interlocking.Base.ConvertMethodEnum.ToString(Interlocking.Base.MethodEnum)">
+            <summary>
+            C# 8.0부터의 간결 switch문과 람다식 활용한 Enum 문자열 변환
+            </summary>
+            <param name="methodEnum">MethodEnum => string값</param>
+            <returns>string형 API 매소드명</returns>
         </member>
         <member name="T:Interlocking.Base.BaseRequestPacket">
             <summary>
@@ -105,12 +113,39 @@
             </summary>
             <returns>서비스의 사용가능 여부</returns>
         </member>
+        <member name="T:Interlocking.Base.BaseSqlSkeyEntity">
+            <summary>
+            primaryKey가 string인 Entity 추상클래스
+            </summary>
+        </member>
+        <member name="T:Interlocking.Base.BaseSqlNkeyEntity">
+            <summary>
+            primaryKey가 long인 Entity 추상클래스
+            </summary>
+        </member>
+        <member name="T:Interlocking.Base.IBaseMongoRepository`1">
+            <summary>
+            Interface for a MongoDB 레포지토리.
+            </summary>
+            <typeparam name="T">도큐먼트 클래스 implement IMongoMultipleDocument.</typeparam>
+        </member>
+        <member name="T:Interlocking.Base.IBaseSqlRepository`1">
+            <summary>
+            Interface for a base SQL repository.
+            </summary>
+            <typeparam name="T">엔티티 클래스 implement BaseSqlEntity.</typeparam>
+        </member>
         <member name="T:Interlocking.Controllers.EchoController">
             <summary>
             http://localhost:5001/apis/echo
             연동된 서비스들의 기본동작 및 통신상태 확인용.
             [SwaggerTag(...)]이 EnableAnnotations옵션하고 충돌남.
+            클래스를 명시하는 위치에서 생성자 처리가 가능한 C#의 문법이 있어서 임시로 써보는데
+            이게 과연 보편적일까? 세부 산업에 따라 또 다를테고.
             </summary>
+        </member>
+        <member name="M:Interlocking.Controllers.EchoController.MultiformAsync(Interlocking.Controllers.EchoRequest,System.Collections.Generic.IList{Microsoft.AspNetCore.Http.IFormFile})">
+            <inheritdoc/>
         </member>
         <member name="M:Interlocking.Controllers.EchoController.GetAsync(System.Collections.Generic.Dictionary{System.String,System.Object})">
             <inheritdoc/>
@@ -118,10 +153,7 @@
         <member name="M:Interlocking.Controllers.EchoController.PostAsync(Interlocking.Controllers.EchoRequest)">
             <inheritdoc/>
         </member>
-        <member name="M:Interlocking.Controllers.EchoController.PostAsyncWithFiles(Interlocking.Controllers.EchoRequest,Microsoft.AspNetCore.Http.IFormFile[])">
-            <inheritdoc/>
-        </member>
-        <member name="M:Interlocking.Controllers.EchoController.PatchAsync">
+        <member name="M:Interlocking.Controllers.EchoController.PatchAsync(Interlocking.Controllers.EchoRequest)">
             <inheritdoc/>
         </member>
         <member name="M:Interlocking.Controllers.EchoController.PutAsync(Interlocking.Controllers.EchoRequest)">
@@ -129,6 +161,16 @@
         </member>
         <member name="M:Interlocking.Controllers.EchoController.DeleteAsync(Interlocking.Controllers.EchoRequest)">
             <inheritdoc/>
+        </member>
+        <member name="T:Interlocking.Controllers.EchoRequest">
+            <summary>
+            기본 JSON 테스트
+            </summary>
+        </member>
+        <member name="P:Interlocking.Controllers.EchoRequest.Test">
+            <summary>
+            테스트용 필드.
+            </summary>
         </member>
         <member name="T:Interlocking.Controllers.EchoResponse">
             <summary>
@@ -171,6 +213,9 @@
             ASP닷넷코어에서 제공하는 가장 간단한 API로 기본적인 구동확인용.
             [SwaggerTag(...)]이 EnableAnnotations옵션하고 충돌남.
             </summary>
+        </member>
+        <member name="M:Interlocking.Framwork.Binder.MultiFormBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext)">
+            <inheritdoc/>
         </member>
         <member name="T:Interlocking.Framwork.Setting.MariaContext">
             <summary>
@@ -217,6 +262,13 @@
             레디스 보드 보드명.
             </summary>
         </member>
+        <member name="M:Interlocking.Global.DataToolExtensions.ToByteArrayAsync(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            CS1106 Error 때문에 static
+            </summary>
+            <param name="file">C#의 IFormFile</param>
+            <returns>범용성을 위해 byte[]</returns>
+        </member>
         <member name="T:Interlocking.Global.EnvironmentEnum">
             <summary>
             지금은 배포환경으로만 나눴지만, 조만간 빌드타입별로도 경우의 수 늘어날 예정.
@@ -241,6 +293,35 @@
         <member name="T:Interlocking.Models.ForEcho.EchoType2Document">
             <summary>
             (몽고DB)tbl_echo에 2종류 이상 도큐먼트 입력 테스트 [2/2]
+            </summary>
+        </member>
+        <member name="T:Interlocking.Models.ServiceLayer.AwsS3Service">
+            <summary>
+            S3에 대한 로직 처리용 서비스 클래스
+            </summary>
+        </member>
+        <member name="M:Interlocking.Models.ServiceLayer.AwsS3Service.IsAvailable">
+            <inheritdoc/>
+        </member>
+        <member name="M:Interlocking.Models.ServiceLayer.AwsS3Service.IsAvailableAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:Interlocking.Models.ServiceLayer.AwsS3Service.UploadFileAsync(Interlocking.Models.ServiceLayer.RootInS3,Interlocking.Models.ServiceLayer.PathInS3,Microsoft.AspNetCore.Http.IFormFile[])">
+            <inheritdoc/>
+        </member>
+        <member name="T:Interlocking.Models.ServiceLayer.RootInS3">
+            <summary>
+            S3의 루프 버킷(enum)
+            </summary>
+        </member>
+        <member name="T:Interlocking.Models.ServiceLayer.PathInS3">
+            <summary>
+            S3의 루프 버킷과 파일명 사이의 경로
+            </summary>
+        </member>
+        <member name="T:Interlocking.Models.ServiceLayer.ConvertS3Enum">
+            <summary>
+            S3의 루프 버킷/경로에 대한 enum의 String변환
             </summary>
         </member>
         <member name="T:Interlocking.Models.ServiceLayer.MariaService">
