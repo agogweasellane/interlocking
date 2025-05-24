@@ -1,17 +1,25 @@
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.S3;
+
 using Interlocking.Base;
 using Interlocking.Controllers;
+using Interlocking.Framwork.Binder;
 using Interlocking.Framwork.Setting;
 using Interlocking.Global;
 using Interlocking.Global.Exception;
 using Interlocking.Models.ServiceLayer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Filters;
-
-using Amazon.S3;
 
 
 /// <summary>
@@ -20,6 +28,12 @@ using Amazon.S3;
 /// 육안으로만 보면 typescript의 App파일?
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddSimpleConsole(i => i.ColorBehavior = LoggerColorBehavior.Disabled);
+});
+var logger = loggerFactory.CreateLogger<Program>();
+
 EnvironmentEnum envEnum = EnvironmentEnum.Win;
 string appendTag = "";
 const string API_VERSION = "V. 0.8.2505";
@@ -35,6 +49,14 @@ else
     appendTag = "ForDocker";
 }
 builder.WebHost.UseUrls(urls);
+
+
+builder.Services.Configure<FormOptions>(options =>
+{//multipartForm.첨부파일
+    options.MultipartBodyLengthLimit = long.MaxValue; // 제한 없음
+    options.ValueLengthLimit = int.MaxValue;       // 개별 폼 필드의 최대 길이
+    options.MultipartHeadersLengthLimit = 8192;   // multipart 헤더의 최대 길이
+});
 
 
 //START. component류
@@ -107,24 +129,31 @@ builder.Services.AddSwaggerExamplesFromAssemblyOf<EchoResponseExample>();
 
 
 //START. 클라우드-AWS
-builder.Services.AddAWSService<IAmazonS3>();
-builder.Services.AddCors(options =>
+var awsSettingJson = builder.Configuration.GetSection("AWS").Get<AwsSetting>();
+logger.LogDebug("GetAWSOptions={0}", awsSettingJson.ToJson());
+builder.Services.AddDefaultAWSOptions(new AWSOptions
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
+    Region = Amazon.RegionEndpoint.GetBySystemName(awsSettingJson?.Region),
+    Credentials = new Amazon.Runtime.BasicAWSCredentials(awsSettingJson?.AccessKey, awsSettingJson?.SecretKey)
 });
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
+//builder.Services.AddAWSService<IAmazonS3A>(Configuration.GetAWSOptions("AWS1"));//추가지역 A 호환되게 할 때.
+//builder.Services.AddAWSService<IAmazonS3B>(Configuration.GetAWSOptions("AWS2"));//추가지역 B 호환되게 할 때.
+builder.Services.AddScoped<Interlocking.Models.ServiceLayer.IAwsS3Service, AwsS3Service>();
 //END. 클라우드-AWS
 
 
+builder.Services.AddHttpLogging(o => {//로깅.
+    o.LoggingFields = HttpLoggingFields.All & ~HttpLoggingFields.Duration;
+});
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<GlobalExceptionHandler>();
+    options.ModelBinderProviders.Insert(0, new MultiFormBinderProvider());
 });
+builder.Services.AddTransient<MultiFormReqBinder<BaseRequestPacket>>();
+
+
 var app = builder.Build();
 
 
@@ -147,5 +176,6 @@ else
 
 app.UseRouting(); // WARN. 라우팅 미들웨어
 app.UseAuthorization();
+app.UseHttpLogging();//로깅.
 app.MapControllers();
 app.Run();
