@@ -1,13 +1,16 @@
 ﻿using Interlocking.Base;
+using Interlocking.Framwork.Binder;
 using Interlocking.Global;
 using Interlocking.Global.Exception;
 using Interlocking.Global.WrongException;
 using Interlocking.Models.ServiceLayer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Net;
+using System.Xml.Linq;
 
 namespace Interlocking.Controllers;
 
@@ -15,6 +18,8 @@ namespace Interlocking.Controllers;
 /// http://localhost:5001/apis/echo
 /// 연동된 서비스들의 기본동작 및 통신상태 확인용.
 /// [SwaggerTag(...)]이 EnableAnnotations옵션하고 충돌남.
+/// 클래스를 명시하는 위치에서 생성자 처리가 가능한 C#의 문법이 있어서 임시로 써보는데
+/// 이게 과연 보편적일까? 세부 산업에 따라 또 다를테고.
 /// </summary>
 [ApiController]
 [Route("apis/echo")]
@@ -25,17 +30,61 @@ namespace Interlocking.Controllers;
 public class EchoController : BaseController<EchoController, EchoRequest, EchoResponse>
 {
     private readonly RedisService _redisService;
-    private readonly MongoMultiDocumentService _mongoMultiDocService;
+    private readonly MongoMultiDocumentService _mongoService;
     private readonly MariaService _mariaService;
+    private readonly AwsS3Service _awsS3Service;
 
-    public EchoController(ILogger<EchoController> logger,
-                          RedisService redisService, MariaService mariaService,
-                          MongoMultiDocumentService mongoMultiDocumentService) : base(logger)
+    public EchoController(RedisService redisService, MariaService mariaService, MongoMultiDocumentService mongoService,
+                          IAwsS3Service awsS3Service,
+                          ILogger<EchoController> logger) : base(logger)
     {
-        _mongoMultiDocService = mongoMultiDocumentService;
+        _mongoService = mongoService;
         _redisService = redisService;
         _mariaService = mariaService;
+#pragma warning disable CS8601 // 가능한 null 참조
+        _awsS3Service = (AwsS3Service?)awsS3Service;//WARN. System.InvalidOperationException: Unable to resolve service for type
+#pragma warning restore CS8601 // 가능한 null 참조
     }
+
+
+
+
+    /// <inheritdoc/>
+    [HttpPost]
+    [HttpPatch]
+    [HttpPut]
+    [Route(RestrictedParam.File)]
+    [Consumes(ContextFormat.FormData, ContextFormat.Json)]
+    [Produces(ContextFormat.Json)]
+    [SwaggerOperation(Summary = "연동서비스들 목록 체크", Description = "상태가 비정상인 서비스는 false로 표기.")]
+    public override async Task<IActionResult> MultiformAsync([ModelBinder(typeof(MultiFormReqBinder<BaseRequestPacket>), Name = "json")] EchoRequest req, 
+                                                             IList<IFormFile> files)
+    {
+#if DEBUG
+        _logger.LogDebug("called.PostAsync {0}", DateTime.Now);
+        _logger.LogDebug("PostAsync.req={0}", req.ToJsonString());
+#endif
+        //IActionResult ret = req.Method switch
+        //{//enum쪽 변환에서는 유용했는데 컨트롤러단에서도 괜찮을지는...
+        //    MethodEnum.POST => await PostAsync(req) as EchoResponse,
+        //    MethodEnum.PATCH => await PatchAsync(req) as EchoResponse,
+        //    MethodEnum.PUT => await PutAsync(req) as EchoResponse
+        //};
+        IActionResult ret = null;
+
+        if (files != null)
+        {
+            req.Files = files.ToArray();
+        }
+
+        if (MethodEnum.POST == req.Method)      { ret = await PostAsync(req); }
+        else if (MethodEnum.PUT == req.Method)  { ret = await PutAsync(req); }
+        else if (MethodEnum.PATCH == req.Method){ ret = await PatchAsync(req); }
+
+
+        return ret;
+    }
+
 
     /// <inheritdoc/>
     [HttpGet]
@@ -48,7 +97,7 @@ public class EchoController : BaseController<EchoController, EchoRequest, EchoRe
         EchoResponse ret = new();
         ret.SetStatus(HttpStatusCode.OK);
 
-        ret.MongoHealth = await _mongoMultiDocService.IsAvailableAsync();
+        ret.MongoHealth = await _mongoService.IsAvailableAsync();
         if (ret.MongoHealth == false) { throw new WrongServiceException(HttpStatusCode.ServiceUnavailable, "MongoHealth.IsAvailableAsync==false"); }
 
         ret.RedisHealth = await _redisService.IsAvailableAsync();
@@ -57,7 +106,7 @@ public class EchoController : BaseController<EchoController, EchoRequest, EchoRe
         ret.MariaHealth = await _mariaService.IsAvailableAsync();
         if (ret.MariaHealth == false) { throw new WrongServiceException(HttpStatusCode.ServiceUnavailable, "MariaHealth.IsAvailableAsync==false"); }
 
-        ret.S3Health = false;
+        ret.S3Health = await _awsS3Service.IsAvailableAsync();
         if (ret.S3Health == false) { throw new WrongServiceException(HttpStatusCode.ServiceUnavailable, "S3Health.IsAvailableAsync==false"); }
 
 
@@ -66,35 +115,27 @@ public class EchoController : BaseController<EchoController, EchoRequest, EchoRe
 
     /// <inheritdoc/>
     [HttpPost]
+    [Consumes(ContextFormat.Json)]
     [SwaggerOperation(Summary = "연동서비스들 목록 체크", Description = "상태가 비정상인 서비스를 false로 입력.")]
-    public override async Task<IActionResult> PostAsync(EchoRequest req)
+    public override async Task<IActionResult> PostAsync([FromBody] EchoRequest req)
     {
 #if DEBUG
         _logger.LogDebug("called.PostAsync {0}", DateTime.Now);
 #endif
         EchoResponse ret = new ();
         ret.SetStatus(HttpStatusCode.OK);
-        ret.MongoHealth = await _mongoMultiDocService.IsAvailableAsync();
+        ret.MongoHealth = await _mongoService.IsAvailableAsync();
         ret.RedisHealth = await _redisService.IsAvailableAsync();
         ret.MariaHealth = await _mariaService.IsAvailableAsync();
-        ret.S3Health = false;
+        ret.S3Health = await _awsS3Service.IsAvailableAsync();
 #if DEBUG
         _logger.LogDebug("PostAsync.ret={0}", ret.ToJsonString());
 #endif
+
+
         return MakeResponse(ret);
     }
 
-    /// <inheritdoc/>
-    [HttpPost][Route(RestrictedParam.File)]
-    [Consumes(ContextFormat.Json, ContextFormat.FormData)][Produces(ContextFormat.Json)]
-    [SwaggerOperation(Summary = "연동서비스들 목록 체크", Description = "상태가 비정상인 서비스는 false로 표기.")]
-    public override async Task<IActionResult> PostAsync([FromForm(Name = "json")] EchoRequest req, [FromForm(Name = RestrictedParam.File)] IFormFile[] files)
-    {
-#if DEBUG
-        _logger.LogDebug("called.PostAsync {0}", DateTime.Now);
-#endif
-        throw new WrongRequestExcpetion();//TO-DO.
-    }
 
     /// <inheritdoc/>
     [HttpPatch]
@@ -106,23 +147,13 @@ public class EchoController : BaseController<EchoController, EchoRequest, EchoRe
 #endif
         EchoResponse ret = new();
         ret.SetStatus(HttpStatusCode.OK);
-        ret.MongoHealth = await _mongoMultiDocService.IsAvailableAsync();
+        ret.MongoHealth = await _mongoService.IsAvailableAsync();
         ret.RedisHealth = await _redisService.IsAvailableAsync();
         ret.MariaHealth = await _mariaService.IsAvailableAsync();
+        ret.S3Health = await _awsS3Service.IsAvailableAsync();
+
 
         return MakeResponse(ret);
-    }
-
-    /// <inheritdoc/>
-    [HttpPatch][Route(RestrictedParam.File)]
-    [Consumes(ContextFormat.Json, ContextFormat.FormData)][Produces(ContextFormat.Json)]
-    [SwaggerOperation(Summary = "연동서비스들 목록 체크", Description = "상태가 비정상인 서비스는 false로 표기./기존 입력값 일부 갱신+파일OW")]
-    public override Task<IActionResult> PatchAsync([FromForm(Name = "json")] EchoRequest req, [FromForm(Name = "files")] IFormFile[] files)
-    {
-#if DEBUG
-        _logger.LogDebug("called.PatchAsync {0}", DateTime.Now);
-#endif
-        throw new WrongRequestExcpetion();//TO-DO.
     }
 
 
@@ -136,25 +167,14 @@ public class EchoController : BaseController<EchoController, EchoRequest, EchoRe
 #endif
         EchoResponse ret = new();
         ret.SetStatus(HttpStatusCode.OK);
-        ret.MongoHealth = await _mongoMultiDocService.IsAvailableAsync();
+        ret.MongoHealth = await _mongoService.IsAvailableAsync();
         ret.RedisHealth = await _redisService.IsAvailableAsync();
         ret.MariaHealth = await _mariaService.IsAvailableAsync();
+        ret.S3Health = await _awsS3Service.IsAvailableAsync();
+
 
         return MakeResponse(ret);
     }
-
-    /// <inheritdoc/>
-    [HttpPut][Route(RestrictedParam.File)]
-    [Consumes(ContextFormat.Json, ContextFormat.FormData)][Produces(ContextFormat.Json)]
-    [SwaggerOperation(Summary = "연동서비스들 목록 체크", Description = "상태가 비정상인 서비스는 false로 표기./기존 입력값&파일 전체 OW")]
-    public override Task<IActionResult> PutAsync([FromForm(Name = "json")] EchoRequest req, [FromForm(Name = "files")] IFormFile[] files)
-    {
-#if DEBUG
-        _logger.LogDebug("called.PutAsync {0}", DateTime.Now);
-#endif
-        throw new WrongRequestExcpetion();//TO-DO.
-    }
-
 
     /// <inheritdoc/>
     [HttpDelete]
@@ -167,18 +187,28 @@ public class EchoController : BaseController<EchoController, EchoRequest, EchoRe
 
         EchoResponse ret = new();
         ret.SetStatus(HttpStatusCode.OK);
-        ret.MongoHealth = await _mongoMultiDocService.IsAvailableAsync();
+        ret.MongoHealth = await _mongoService.IsAvailableAsync();
         ret.RedisHealth = await _redisService.IsAvailableAsync();
         ret.MariaHealth = await _mariaService.IsAvailableAsync();
+        ret.S3Health = await _awsS3Service.IsAvailableAsync();
+
 
         return MakeResponse(ret);
     }
 }
 
+/// <summary>
+/// 기본 JSON 테스트
+/// </summary>
 public class EchoRequest : BaseRequestPacket
 {
+    /// <summary>
+    /// 테스트용 필드.
+    /// </summary>
     [SwaggerSchema(Description = "기본 json테스트용")]
     public string? Test { get; set; }
+
+    public IFormFile[]? Files { get; set; }
 }
 
 /// <summary>

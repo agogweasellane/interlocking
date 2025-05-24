@@ -46,6 +46,9 @@ public static class RedisBoard
 
 public static class ContextFormat
 {
+    public const string BindJson = "json";
+    public const string BindFiles = "files";
+
     public const string Json = "application/json";
     public const string FormData = "multipart/form-data";
 }

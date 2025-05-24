@@ -5,19 +5,28 @@
 - 변수 Xxxx		프로퍼티 변수
 
 비동기 관련
-	JAVA의 Callable<V>과 Future<V>중 어느쪽이 Task<V>랑 가까운편일까 했는데비동기 작업결과 반환은 Future
+	JAVA의 Callable<V>과 Future<V>중 어느쪽이 Task<V>랑 가까운편일까 했는데 비동기 작업 '결과반환'은 Future
 
 코드 고도화 및 구조잡기
 	(Base)Async()에서 (Base)abstrat AsyncControll()를 호출시키고, 자식에서 재정의하기에는 어트리뷰트 지정등에서 경로가 안 맞는 문제. 그런고로 (Base)abstrat Async()
 ------------------------------------------------------------
 ------------------------------------------------------------
 아키텍쳐 및 클린코드관련
+ASP 닷넷코어
+	https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-9.0&tabs=visual-studio
+	https://learn.microsoft.com/ko-kr/aspnet/core/mvc/models/file-uploads?view=aspnetcore-9.0
+	(2023) https://mycsharpdeveloper.wordpress.com/2023/07/03/how-to-upload-files-in-asp-net-core-webapi-using-csharp-and-change-file-size-limit/  //말레이시아
+
+베스트 샘플
 	(2025) https://codewithmukesh.com/blog/restful-api-best-practices-for-dotnet-developers/
 	(2025) https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
+바인더
+	(2025) https://learn.microsoft.com/ko-kr/aspnet/core/mvc/advanced/custom-model-binding?view=aspnetcore-9.0
+	(2018) https://www.palmmedia.de/Blog/2018/5/13/aspnet-core-model-binding-of-abstract-classes
+	(2024) https://thetechplatform.medium.com/custom-model-binding-in-asp-net-core-a-comprehensive-guide-7f50f6de6986
 ------------------------------------------------------------
 ------------------------------------------------------------
 연동
-ASP 닷넷	https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-9.0&tabs=visual-studio
 maraiDB		https://blog.georgekosmidis.net/using-mariadb-in-an-aspnet-core-api-with-entity-framework-core.html
 스웨거
 	https://learn.microsoft.com/ko-kr/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-9.0&preserve-view=true
@@ -26,11 +35,14 @@ maraiDB		https://blog.georgekosmidis.net/using-mariadb-in-an-aspnet-core-api-wit
 	(2020) https://medium.com/trimble-maps-engineering-blog/customizing-swagger-responses-for-better-api-documentation-affbfafeac8f
 S3
 	https://docs.aws.amazon.com/ko_kr/sdk-for-net/v3/developer-guide/csharp_s3_code_examples.html
-	(2025) https://codewithmukesh.com/blog/upload-large-files-aspnet-core-s3-multipart-presigned-urls/
+	(2025) https://codewithmukesh.com/blog/working-with-aws-s3-using-aspnet-core/
 
 	(실무당시 참조) https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region 
     (실무당시 참조) http://www.codelocker.net/30385/dot-net-c-sharp-upload-a-file-to-amazon-aws-s3-with-dot-net-and-c-sharp/	(404)
 	(실무당시 참조) https://stackoverflow.com/questions/33545065/amazon-s3-how-to-get-a-list-of-folders-in-the-bucket
+로깅
+	(2024) https://www.sysnet.pe.kr/2/0/13520#google_vignette
+
 코드규칙
 	https://learn.microsoft.com/ko-kr/aspnet/core/tutorials/first-web-api?view=aspnetcore-9.0&tabs=visual-studio
 	https://gemini.google.com/u/1/gem/coding-partner/
