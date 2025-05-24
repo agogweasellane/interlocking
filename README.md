@@ -9,7 +9,10 @@
     - AuthFilter: request바디가 있는 호출METHOD별 필수 입력항목 체크 (현재는 json 필드값과 호출METHOD 비교로 예시)
 ### 2) restFull API
 - 제네릭&추상클래스를 통한 API method 규칙 적용
-- apis/ehco: 연동된 시스템의 정상적인 작동을 체크. 로드밸런서의 healthCheck와 관리툴 메뉴등에서 활용가능.
+- apis/simple
+    - 별도의 연동없이 해당 웹API서버의 기본 구동 여부 확인용.
+- apis/ehco
+    - 연동된 시스템의 정상적인 작동을 체크. 로드밸런서의 healthCheck와 관리툴 메뉴등에서 활용가능.
 ### 3) SQL
 - 마리아DB: mariadb.jdbc
     - QueryDSL이 2024년 1월 이후로 업데이트가 중단되서 대체재로 JOOQ 적용 고려중.
@@ -29,20 +32,30 @@
 
 
 # 2. C#
-### 0) Ver. 0.8.2502
+### 0) Ver. 0.8.2505
 ### 1) 프레임워크
 - ASP .netCore (.net 9.0)
     - web API
+    - MultiFormReqBinder: 멀티폼 API내에서 매핑처리
 ### 2) restFull API
 - 제네릭&추상클래스를 통한 API method 규칙 적용
-- apis/ehco: (마무리 작업중.)
+- apis/simple
+    - 별도의 연동없이 해당 웹API서버의 기본 구동 여부 확인용.
+- apis/ehco
+    - json용 함수: 리퀘스트 바디 처리 가능
+    - multiform형 함수
+          - 바인더를 통해 restFull API 매소드 체크후, json에 입력. 컨트롤러에서 매소드에 맞게 분기처리.
+          - API 호출도구에 따른 입력값 차이(스웨거, 포스트맨 기준). 클라이언트 구현후 통신테스트를 위한 추가 디버깅 필요.
 ### 3) SQL
 - 마리아DB: MongoDB.Driver 3.4.0
 ### 4) NoSQL
 - 레디스: StackExchange.Redis 2.8.37
-- 몽고DB
+- 몽고DB: MongoDB.Driver 3.4.0
 ### 5) 클라우드 스토리지
-- (예정)
+- AWS S3버킷
+    - AWSSDK.S3 3.7.416.31
+    - AWSSDK.Extensions.NETCore.Setup 3.7.400
+    - 계정 액세스키를 통한 기본 연동확인.
 ### 6) 기타
 - GlobalExceptionHandler: 글로벌익셉션 처리를 통해 익셉션관련 클린코드 적용.
 - 레디스/몽고/마리아DB 적용 및 도커 빌드&배포에 약 2일
