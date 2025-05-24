@@ -1,4 +1,5 @@
 ﻿using Interlocking.Controllers;
+using Interlocking.Framwork.Binder;
 using Interlocking.Global;
 using Interlocking.Models.ServiceLayer;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,15 @@ public abstract class BaseController<T, RQ, RP>(ILogger<T> logger) : ControllerB
     }
 
     /// <summary>
+    /// json과 첨부파일을 같이 넣는경우. 포스트맨의 입력형식 기준.
+    /// </summary>
+    /// <param name="req"> json스트링 형태 </param>
+    /// <param name="files">업로드할 파일[]</param>
+    /// <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
+    public abstract Task<IActionResult> MultiformAsync([ModelBinder(typeof(MultiFormReqBinder<BaseRequestPacket>), Name = ContextFormat.BindJson)] RQ req,
+                                                       IList<IFormFile> files);
+
+    /// <summary>
     /// HttpGet 리퀘스트.
     /// </summary>
     /// <returns>딕셔너리형 리퀘스트</returns>
@@ -61,16 +71,6 @@ public abstract class BaseController<T, RQ, RP>(ILogger<T> logger) : ControllerB
 
 
     /// <summary>
-    /// HttpPost 리퀘스트.
-    /// </summary>
-    /// <param name="req"> json스트링 형태 </param>
-    /// <param name="files">업로드할 파일[]</param>
-    /// <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
-    public abstract Task<IActionResult> PostAsync([FromForm(Name = "json")] RQ req,
-                                                  [FromForm(Name = RestrictedParam.File)] IFormFile[] files);
-
-
-    /// <summary>
     /// HttpPut 리퀘스트. 리소스OW
     /// </summary>
     /// <param name="req">The request payload.</param>
@@ -78,28 +78,10 @@ public abstract class BaseController<T, RQ, RP>(ILogger<T> logger) : ControllerB
     public abstract Task<IActionResult> PutAsync(RQ req);
 
     /// <summary>
-    /// HttpPut 리퀘스트. 리소스OW
-    /// </summary>
-    /// <param name="req"> json스트링 형태 </param>
-    /// <param name="files">업로드할 파일[]</param>
-    /// <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
-    public abstract Task<IActionResult> PutAsync([FromForm(Name = "json")] RQ req,
-                                                 [FromForm(Name = RestrictedParam.File)] IFormFile[] files);
-
-    /// <summary>
     /// HttpPatch 리퀘스트. 리소스 일부update
     /// </summary>
     /// <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
     public abstract Task<IActionResult> PatchAsync(RQ req);
-
-    /// <summary>
-    /// HttpPatch 리퀘스트. 리소스 일부update
-    /// </summary>
-    /// <param name="req"> json스트링 형태 </param>
-    /// <param name="files">업로드할 파일[]</param>
-    /// <returns>BaseRequestPacket 상속받은 리퀘스트</returns>
-    public abstract Task<IActionResult> PatchAsync([FromForm(Name = "json")] RQ req,
-                                                   [FromForm(Name = RestrictedParam.File)] IFormFile[] files);
 
     /// <summary>
     /// HttpDelete 리퀘스트.

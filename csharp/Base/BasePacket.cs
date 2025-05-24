@@ -1,14 +1,62 @@
-﻿using Newtonsoft.Json;
+﻿using Interlocking.Models.ServiceLayer;
+using Newtonsoft.Json;
 using System.Net;
 
 namespace Interlocking.Base;
 
+
+public enum MethodEnum
+{
+    GET,
+    POST,
+    PATCH,
+    PUT,
+    DELETE
+}
+public static class ConvertMethodEnum
+{
+    private const string GET = "GET";
+    private const string POST = "POST";
+    private const string PATCH = "PATCH";
+    private const string PUT = "PUT";
+    private const string DELETE = "DELETE";
+
+    /// <summary>
+    /// C# 8.0부터의 간결 switch문과 람다식 활용한 Enum 문자열 변환
+    /// </summary>
+    /// <param name="methodEnum">MethodEnum => string값</param>
+    /// <returns>string형 API 매소드명</returns>
+    public static string ToString(MethodEnum methodEnum)
+    {
+        return methodEnum switch
+        {
+            MethodEnum.GET => GET,
+            MethodEnum.POST => POST,
+            MethodEnum.PATCH => PATCH,
+            MethodEnum.PUT => PUT,
+            MethodEnum.DELETE => DELETE
+        };
+    }
+    public static MethodEnum ToEnum(string method)
+    {
+        return method switch
+        {
+            GET => MethodEnum.GET,
+            POST => MethodEnum.POST,
+            PATCH => MethodEnum.PATCH,
+            PUT => MethodEnum.PUT,
+            DELETE => MethodEnum.DELETE
+        };
+    }
+}
 
 /// <summary>
 /// URL에 파라미터를 넣어서 쓰는 GET, DELETE쪽과는 무관
 /// </summary>
 public class BaseRequestPacket
 {
+    public MethodEnum Method{ get; set; }
+
     public string ToJsonString()
     {
         return JsonConvert.SerializeObject(this);
